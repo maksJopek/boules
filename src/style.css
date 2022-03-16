@@ -1,0 +1,23 @@
+:root {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+  background-color: black;
+}
+
+table {
+  border-collapse: collapse;
+  margin: 20px auto;
+}
+td {
+  border: 1px solid darkred;
+  width: 50px;
+  height: 50px;
+}
+td div {
+  width: 35px;
+  height: 35px;
+  margin: auto auto;
+  border-radius: 50%;
+}
