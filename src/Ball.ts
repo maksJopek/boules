@@ -1,4 +1,4 @@
-import { START_NO_OF_BALLS, MAP_WIDTH, MAP_HEIGHT, COLORS, TD_SIZE, CIRCLE_SIZE } from "./consts";
+import { START_NO_OF_BALLS, MAP_WIDTH, MAP_HEIGHT, COLORS } from "./consts";
 import { getRandomInt, getRandomEl } from "./utils";
 
 export default class Ball {
@@ -11,9 +11,7 @@ export default class Ball {
     this.y = y;
     this.color = color;
   }
-  onclick(el: PointerEvent) {
-  }
-  static generateStartBalls(): Array<Ball> {
+  static generateNewBalls(): Array<Ball> {
     const out = <Ball[]>[];
     for (let i = 0; i < START_NO_OF_BALLS; i++) {
       let x: number, y: number, color: string;
