@@ -1,6 +1,7 @@
 import Ball from "./Ball";
 import { MAP_WIDTH, MAP_HEIGHT, TD_SIZE } from "./consts";
-import { genGraph, genMap } from "./map";
+import { sleep } from "./utils";
+import { findToRemove, genGraph, genMap } from "./map";
 import findPath, { Path } from "./pathfinder";
 
 let selectedBall: Ball | null = null;
@@ -19,25 +20,30 @@ export async function nextTurn() {
     getTd(v.x!, v.y!).style.backgroundColor = "rgba(50, 50, 50, 0.8)";
   }
 
-  await sleep(2000);
+  await sleep(1000);
+
+  const toRemove = findToRemove(window.balls);
+
+
+  window.balls = window.balls.filter(ba => !toRemove.find(b => ba.isEqual(b)))
+  for (const b of toRemove) {
+    clearTd(b.td)
+  }
+  pointsEl.innerText = (parseInt(pointsEl.innerText) + toRemove.length).toString()
 
   setCurrentPath([]);
-  window.balls.push(...Ball.generateNewBalls());
+  window.balls.push(...Ball.generateNewBalls(window.balls));
   render();
   turnIsChanging = false;
 }
-async function sleep(time: number) {
-  return new Promise(resolve => setTimeout(resolve, time));
-}
+
 export function tdOnClick(_e: PointerEvent) {
   if (!currentPath.length || turnIsChanging) return;
   const std = getTd(currentPath[0].x!, currentPath[0].y!);
-  (std.firstChild as HTMLDivElement).style.width = "";
-  (std.firstChild as HTMLDivElement).style.height = "";
+  clearTd(std)
   const ib = window.balls.findIndex(b => b.x === currentPath[0].x && b.y === currentPath[0].y)!
   window.balls[ib].x = currentPath[currentPath.length - 1].x!
   window.balls[ib].y = currentPath[currentPath.length - 1].y!
-  std.innerHTML = "";
   selectedBall = null;
   render(window.balls);
   nextTurn();
@@ -57,15 +63,22 @@ export function render(balls?: Ball[]) {
   for (const ball of balls) {
     const { x, y, color } = ball;
     const td = getTd(x, y);
-    (td.firstChild as HTMLDivElement).style.backgroundColor = color;
+    td.firstChild.style.backgroundColor = color;
 
-    td.onclick = () => {
+    td.onmousedown = () => {
       if (turnIsChanging) return;
       const circle = td.firstChild as HTMLDivElement;
       setCurrentPath([]);
       const smallerCircle = () => {
-        circle.style.width = "";
-        circle.style.height = "";
+        if (!selectedBall) return;
+        selectedBall.td.firstChild.style.width = ""
+        selectedBall.td.firstChild.style.height = ""
+      }
+      getGameMapEl().onmouseleave = () => {
+        if (turnIsChanging) return;
+        setCurrentPath([]);
+        smallerCircle();
+        selectedBall = null;
       }
 
       if (circle.style.width === TD_SIZE) {
@@ -80,6 +93,15 @@ export function render(balls?: Ball[]) {
       selectedBall = ball;
     };
   }
+}
+export function clearTd(td: Td) {
+  if (td.localName !== "td") {
+    console.log(td)
+    throw new Error("Not td passed to clearTd()");
+  }
+  td.innerHTML = ""
+  td.onmousedown = null;
+  td.appendChild(document.createElement("div"))
 }
 export function genGameTable() {
   const table = getGameMapEl();
@@ -96,11 +118,14 @@ export function genGameTable() {
     }
     table.appendChild(tr)
   }
-
 }
 export function getGameMapEl(): HTMLTableElement {
   return document.querySelector('table')!
 }
-export function getTd(x: number, y: number): HTMLTableDataCellElement {
-  return getGameMapEl().children[x].children[y] as HTMLTableDataCellElement;
+export interface Td extends HTMLTableCellElement {
+  firstChild: HTMLDivElement;
 }
+export function getTd(x: number, y: number): Td {
+  return getGameMapEl().children[x].children[y] as Td;
+}
+export const pointsEl = document.querySelector("h3 span") as HTMLSpanElement

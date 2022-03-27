@@ -7,3 +7,7 @@ export function getRandomInt(min: number, max: number): number {
 export function getRandomEl<T>(arr: Array<T>): T {
   return arr[getRandomInt(0, arr.length)];
 }
+export async function sleep(time: number) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}
+

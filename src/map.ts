@@ -1,6 +1,67 @@
 import Ball from "./Ball";
-import { MAP_HEIGHT, MAP_WIDTH } from "./consts";
+import { DELETE_FROM_BALLS, MAP_HEIGHT, MAP_WIDTH } from "./consts";
 import { Graph } from "./pathfinder/Graph";
+
+export function findToRemove(balls: Ball[]): Ball[] {
+  const out = new Set<Ball>()
+  for (const ball of balls) {
+    const xNeighbours = new Set<Ball>();
+    for (let x = ball.x; x < MAP_HEIGHT; x++) {
+      const b = balls.find(b => b.y === ball.y && b.x === x && b.color === ball.color);
+      if (!b) break;
+      xNeighbours.add(b)
+    }
+    for (let x = ball.x - 1; x >= 0; x--) {
+      const b = balls.find(b => b.y === ball.y && b.x === x && b.color === ball.color)
+      if (!b) break;
+      xNeighbours.add(b)
+    }
+
+    const yNeighbours = new Set<Ball>();
+    for (let y = ball.y; y < MAP_WIDTH; y++) {
+      const b = balls.find(b => b.x === ball.x && b.y === y && b.color === ball.color);
+      if (!b) break;
+      yNeighbours.add(b)
+    }
+    for (let y = ball.y - 1; y >= 0; y--) {
+      const b = balls.find(b => b.x === ball.x && b.y === y && b.color === ball.color)
+      if (!b) break;
+      yNeighbours.add(b)
+    }
+
+    //    same(Sign)XYNeigbours
+    const sxyNeighbours = new Set<Ball>();
+    for (let x = ball.x, y = ball.y; x >= 0 && y >= 0; x--, y--) {
+      const b = balls.find(b => b.x === x && b.y === y && b.color === ball.color)
+      if (!b) break;
+      sxyNeighbours.add(b)
+    }
+    for (let x = ball.x + 1, y = ball.y + 1; x < MAP_HEIGHT && y < MAP_WIDTH; x--, y--) {
+      const b = balls.find(b => b.x === x && b.y === y && b.color === ball.color)
+      if (!b) break;
+      sxyNeighbours.add(b)
+    }
+
+    //    diffrent(Sign)XYNeigbours
+    const dxyNeighbours = new Set<Ball>();
+    for (let x = ball.x, y = ball.y; x >= 0 && y < MAP_WIDTH; x--, y++) {
+      const b = balls.find(b => b.x === x && b.y === y && b.color === ball.color)
+      if (!b) break;
+      dxyNeighbours.add(b)
+    }
+    for (let x = ball.x + 1, y = ball.y - 1; x >= 0 && y >= 0; x++, y--) {
+      const b = balls.find(b => b.x === x && b.y === y && b.color === ball.color)
+      if (!b) break;
+      dxyNeighbours.add(b)
+    }
+
+    const sets = [xNeighbours, yNeighbours, sxyNeighbours, dxyNeighbours]
+    for (const s of sets) {
+      if (s.size >= DELETE_FROM_BALLS) s.forEach(b => out.add(b))
+    }
+  }
+  return [...out];
+}
 
 export type Map = (Ball | null)[][];
 export function genMap(balls: Array<Ball>): Map {
