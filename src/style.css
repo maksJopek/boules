@@ -4,8 +4,8 @@
   -moz-osx-font-smoothing: grayscale;
   color: white;
   background-color: black;
+  font-size: 2em;
 }
-
 table {
   border-collapse: collapse;
   margin: 20px auto;
@@ -20,4 +20,15 @@ td div, #next div {
   height: 35px;
   margin: auto auto;
   border-radius: 50%;
+}
+header {
+  margin-top: 5vh;
+  margin-left: 5vh;
+  text-align: center;
+}
+header div {
+  margin: 20px;
+}
+#next div {
+  display: inline-block;
 }
