@@ -1,3 +1,2 @@
 #!/bin/sh
-st -e pnpm dev &
-lvim index.html
+pnpm dev
